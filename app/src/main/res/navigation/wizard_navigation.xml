@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/wizard_navigation"
+    app:startDestination="@id/frg_user">
+
+    <fragment
+        android:id="@+id/frg_user"
+        android:name="ru.otus.basicarchitecture.UserFragment"
+        tools:layout="@layout/fragment_user"
+        android:label="UserFragment">
+
+        <action
+            android:id="@+id/go_2_address"
+            app:destination="@id/frg_address" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/frg_address"
+        android:name="ru.otus.basicarchitecture.AddressFragment"
+        tools:layout="@layout/fragment_address"
+        android:label="AddressFragment">
+
+        <action
+            android:id="@+id/go_2_interests"
+            app:destination="@id/frg_interests" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/frg_interests"
+        android:name="ru.otus.basicarchitecture.InterestsFragment"
+        tools:layout="@layout/fragment_interests"
+        android:label="InterestsFragment">
+
+        <action
+            android:id="@+id/go_2_resume"
+            app:destination="@id/frg_resume" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/frg_resume"
+        android:name="ru.otus.basicarchitecture.ResumeFragment"
+        tools:layout="@layout/fragment_resume"
+        android:label="ResumeFragment">
+    </fragment>
+
+</navigation>
