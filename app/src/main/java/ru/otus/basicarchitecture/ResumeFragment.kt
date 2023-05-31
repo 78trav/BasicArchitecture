@@ -3,21 +3,13 @@ package ru.otus.basicarchitecture
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import android.widget.CheckBox
-import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
-import dagger.Component
-import ru.otus.basicarchitecture.databinding.FragmentInterestsBinding
 import ru.otus.basicarchitecture.databinding.FragmentResumeBinding
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
-import javax.inject.Provider
-import javax.inject.Scope
 
-@ResumeScope
+@RegistrationScope
 class ResumeFragment : Fragment(R.layout.fragment_resume) {
 
     companion object {
@@ -25,13 +17,13 @@ class ResumeFragment : Fragment(R.layout.fragment_resume) {
     }
 
     @Inject
-    lateinit var cache: Provider<WizardCache>
+    lateinit var viewModelFactory: ResumeViewModelFactory
 
-    private val viewModel: ResumeViewModel by viewModels<ResumeViewModel> { ResumeViewModelFactory(cache.get()) }
+    private val viewModel by viewModels<ResumeViewModel> { viewModelFactory }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        ResumeFragmentComponent.create((activity as MainActivity).getComponent()).inject(this)
+        (requireActivity() as MainActivity).getComponent().inject(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -43,7 +35,7 @@ class ResumeFragment : Fragment(R.layout.fragment_resume) {
 
             val userData = cache.getUserData()
             val addrData = cache.getAddressData()
-            val birthday = SimpleDateFormat("dd.MM.yyyy").format(Date(userData.birthday))
+            val birthday = cache.getUserData().birthday.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
             var interests = ""
             cache.getInterests().forEach {
                 interests = interests + "\n" + it.name.lowercase()
@@ -57,24 +49,3 @@ class ResumeFragment : Fragment(R.layout.fragment_resume) {
     }
 
 }
-
-
-@Component(dependencies = [MainActivityComponent::class])
-@ResumeScope
-interface ResumeFragmentComponent {
-
-
-    companion object {
-
-        fun create(mainActivityComponent: MainActivityComponent): ResumeFragmentComponent {
-            return DaggerResumeFragmentComponent.builder().mainActivityComponent(mainActivityComponent).build()
-        }
-
-    }
-
-    fun inject(frg: ResumeFragment)
-
-}
-
-@Scope
-annotation class ResumeScope

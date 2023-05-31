@@ -3,43 +3,31 @@ package ru.otus.basicarchitecture
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import dagger.Component
-import javax.inject.Inject
-import javax.inject.Provider
 
 class MainActivity : AppCompatActivity() {
 
-    @Inject
-    lateinit var cache: Provider<WizardCache>
+    private val mainActivityComponent = DaggerMainActivityComponent.create()
 
-    companion object{
-        private var mainActivityComponent: MainActivityComponent? = null
-    }
-
-    fun getComponent(): MainActivityComponent = mainActivityComponent ?: MainActivityComponent.create().also { mainActivityComponent = it }
+    fun getComponent(): MainActivityComponent = mainActivityComponent
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        getComponent().inject(this)
-
-        //cache.get().inc()
-        //val c = cache.get().getCnt()
     }
 
 }
 
 
 @Component
-@WizardCacheScope
+@RegistrationScope
 interface MainActivityComponent {
 
-    companion object {
-        fun create(): MainActivityComponent = DaggerMainActivityComponent.create()
-    }
+    fun inject(userFragment: UserFragment)
 
-    fun inject(activity: MainActivity)
+    fun inject(addressFragment: AddressFragment)
 
-    fun provideWizardCache(): WizardCache
+    fun inject(interestsFragment: InterestsFragment)
 
+    fun inject(resumeFragment: ResumeFragment)
 }

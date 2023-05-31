@@ -8,15 +8,18 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
 import androidx.navigation.fragment.findNavController
 import dagger.Component
 import ru.otus.basicarchitecture.databinding.FragmentUserBinding
+import java.time.LocalDate
 import java.util.GregorianCalendar
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Scope
 
-@UserDataScope
+@RegistrationScope
 class UserFragment : Fragment(R.layout.fragment_user) {
 
     companion object {
@@ -24,14 +27,15 @@ class UserFragment : Fragment(R.layout.fragment_user) {
     }
 
     @Inject
-    lateinit var cache: Provider<WizardCache>
+    lateinit var viewModelFactory: UserViewModelFactory
 
-    private val viewModel: UserViewModel by viewModels<UserViewModel> { UserViewModelFactory(cache.get()) }
+    private val viewModel by viewModels<UserViewModel> { viewModelFactory }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        UserFragmentComponent.create((activity as MainActivity).getComponent()).inject(this)
+        (requireActivity() as MainActivity).getComponent().inject(this)
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -43,8 +47,7 @@ class UserFragment : Fragment(R.layout.fragment_user) {
             b.name.text = Editable.Factory.getInstance().newEditable(cache.name)
             b.surname.text = Editable.Factory.getInstance().newEditable(cache.surname)
 
-            val c = GregorianCalendar.getInstance().apply { timeInMillis = cache.birthday }
-            b.birthday.init(c.get(GregorianCalendar.YEAR), c.get(GregorianCalendar.MONTH), c.get(GregorianCalendar.DATE)) { _, year, month, day ->
+            b.birthday.init(cache.birthday.year, cache.birthday.monthValue, cache.birthday.dayOfMonth) { _, year, month, day ->
                 setBirthday(year, month, day)
             }
         }
@@ -64,7 +67,7 @@ class UserFragment : Fragment(R.layout.fragment_user) {
 
     private fun setBirthday(year: Int, month: Int, day: Int) {
         val d = viewModel.getData().value
-        if (d != null) viewModel.setData(UserData(d.name, d.surname, GregorianCalendar.getInstance().apply { set(year, month, day) }.timeInMillis))
+        if (d != null) viewModel.setData(UserData(d.name, d.surname, LocalDate.of(year, month, day)))
     }
 
     private fun setName(name: String) {
@@ -78,23 +81,3 @@ class UserFragment : Fragment(R.layout.fragment_user) {
     }
 
 }
-
-@Component(dependencies = [MainActivityComponent::class])
-@UserDataScope
-interface UserFragmentComponent {
-
-
-    companion object {
-
-        fun create(mainActivityComponent: MainActivityComponent): UserFragmentComponent {
-            return DaggerUserFragmentComponent.builder().mainActivityComponent(mainActivityComponent).build()
-        }
-
-    }
-
-    fun inject(frg: UserFragment)
-
-}
-
-@Scope
-annotation class UserDataScope

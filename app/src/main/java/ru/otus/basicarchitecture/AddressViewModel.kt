@@ -1,15 +1,13 @@
 package ru.otus.basicarchitecture
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import dagger.Component
 import javax.inject.Inject
-import javax.inject.Provider
 
-@AddressDataScope
-class AddressViewModel @Inject constructor(private val cache: WizardCache): ViewModel() {
+class AddressViewModel constructor(private val cache: WizardCache): ViewModel() {
     // TODO: Implement the ViewModel
 
     private var data = MutableLiveData<AddressData>().apply {
@@ -24,10 +22,11 @@ class AddressViewModel @Inject constructor(private val cache: WizardCache): View
 
 }
 
-@AddressDataScope
+@RegistrationScope
 class AddressViewModelFactory @Inject constructor(private val cache: WizardCache): ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        Log.d("cache", cache.toString())
         return AddressViewModel(cache) as T
     }
 }

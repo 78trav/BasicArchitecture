@@ -1,6 +1,6 @@
 package ru.otus.basicarchitecture
 
-import java.util.GregorianCalendar
+import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Scope
 
@@ -19,10 +19,10 @@ enum class Interests {
     OTHER
 }
 
-data class UserData(val name: String, val surname: String, val birthday: Long)
+data class UserData(val name: String, val surname: String, val birthday: LocalDate)
 data class AddressData(val country: String, val city: String, val address: String)
 
-@WizardCacheScope
+@RegistrationScope
 class WizardCache @Inject constructor() {
 
     private var cnt = 0
@@ -31,7 +31,7 @@ class WizardCache @Inject constructor() {
     private var userData = UserData(
         "Ivan",
         "Petrov",
-        GregorianCalendar.getInstance().apply { set(2000, 7, 20) }.timeInMillis
+        LocalDate.of(2000, 7, 20)
     )
     private var addressData = AddressData("", "", "")
     private val interests = mutableSetOf<Interests>()
@@ -67,4 +67,4 @@ class WizardCache @Inject constructor() {
 }
 
 @Scope
-annotation class WizardCacheScope
+annotation class RegistrationScope
