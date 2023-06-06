@@ -29,7 +29,8 @@
             android:id="@+id/city"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="City" />
+            android:hint="City"
+            android:visibility="gone" />
     </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -42,8 +43,16 @@
             android:id="@+id/address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Address" />
+            android:hint="Address"
+            android:visibility="gone" />
     </com.google.android.material.textfield.TextInputLayout>
+
+    <AutoCompleteTextView
+        android:id="@+id/full_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:completionThreshold="8"
+        android:hint="Full address" />
 
 
     <Button

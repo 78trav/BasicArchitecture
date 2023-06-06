@@ -3,6 +3,9 @@ package ru.otus.basicarchitecture
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import dagger.Component
+import dagger.Module
+import dagger.Provides
+import retrofit2.Retrofit
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,7 +21,6 @@ class MainActivity : AppCompatActivity() {
 
 }
 
-
 @Component
 @RegistrationScope
 interface MainActivityComponent {
@@ -30,4 +32,5 @@ interface MainActivityComponent {
     fun inject(interestsFragment: InterestsFragment)
 
     fun inject(resumeFragment: ResumeFragment)
+
 }

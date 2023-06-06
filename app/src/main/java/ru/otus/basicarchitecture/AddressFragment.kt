@@ -5,9 +5,12 @@ import android.os.Bundle
 import android.text.Editable
 import androidx.fragment.app.Fragment
 import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.ListAdapter
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import retrofit2.Retrofit
 import ru.otus.basicarchitecture.databinding.FragmentAddressBinding
 import javax.inject.Inject
 
@@ -36,14 +39,20 @@ class AddressFragment : Fragment(R.layout.fragment_address) {
         viewModel.getData().observe(viewLifecycleOwner) { cache ->
 
             b.country.text = Editable.Factory.getInstance().newEditable(cache.country)
-            b.city.text = Editable.Factory.getInstance().newEditable(cache.city)
-            b.address.text = Editable.Factory.getInstance().newEditable(cache.address)
+//            b.city.text = Editable.Factory.getInstance().newEditable(cache.city)
+//            b.address.text = Editable.Factory.getInstance().newEditable(cache.address)
+            b.fullAddress.text = Editable.Factory.getInstance().newEditable(cache.address)
 
         }
 
         b.country.addTextChangedListener { updateAddressData() }
-        b.city.addTextChangedListener { updateAddressData() }
-        b.address.addTextChangedListener { updateAddressData() }
+//        b.city.addTextChangedListener { updateAddressData() }
+//        b.address.addTextChangedListener { updateAddressData() }
+
+
+        b.fullAddress.setAdapter(AddressAutoCompleteAdapter(requireContext()))
+
+        b.fullAddress.addTextChangedListener { updateAddressData() }
 
         b.btn2Interests.setOnClickListener {
             findNavController().navigate(R.id.frg_interests)
@@ -53,7 +62,7 @@ class AddressFragment : Fragment(R.layout.fragment_address) {
 
     private fun updateAddressData() {
         val b = FragmentAddressBinding.bind(requireView())
-        viewModel.setData(AddressData(b.country.text.toString(), b.city.text.toString(), b.address.text.toString()))
+        viewModel.setData(AddressData(b.country.text.toString(), "", b.fullAddress.text.toString()))
     }
 
 }

@@ -1,5 +1,16 @@
 package ru.otus.basicarchitecture
 
+import android.widget.BaseAdapter
+import com.squareup.moshi.Json
+import dagger.Component
+import dagger.Module
+import dagger.Provides
+import retrofit2.Call
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.http.Body
+import retrofit2.http.Headers
+import retrofit2.http.POST
 import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Scope
@@ -68,3 +79,56 @@ class WizardCache @Inject constructor() {
 
 @Scope
 annotation class RegistrationScope
+
+@Module
+interface RegistrationModule {
+
+    companion object {
+
+        @RegistrationScope
+        @Provides
+        fun provideRetrofit(): Retrofit = Retrofit.Builder()
+            .baseUrl("https://suggestions.dadata.ru/suggestions/")
+            .addConverterFactory(MoshiConverterFactory.create())
+            .build()
+    }
+
+}
+
+
+interface DaDataService {
+
+    @POST("api/4_1/rs/suggest/address")
+    @Headers("Content-Type: application/json", "Accept: application/json", "Authorization: Token 6fe267d622e2445f96084ec7ecfb0371c6db5d88")
+    fun getAddressHint(@Body query: QueryString): Call<Suggestion>
+
+}
+
+data class QueryString(
+    @field:Json(name = "query")
+    val query: String,
+
+    @field:Json(name = "count")
+    val count: Int = 5
+)
+
+data class Suggestion(
+    @field:Json(name = "suggestions")
+    val suggestions: List<SuggestionData>
+)
+
+data class SuggestionData(
+    @field:Json(name = "value")
+    val value: String,
+
+    @field:Json(name = "unrestricted_value")
+    val unrestricted_value: String
+)
+
+@RegistrationScope
+@Component(modules = [RegistrationModule::class])
+interface DaDataComponent {
+
+    fun inject(adapter: AddressAutoCompleteAdapter)
+
+}

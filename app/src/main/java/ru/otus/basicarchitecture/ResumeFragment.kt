@@ -42,7 +42,7 @@ class ResumeFragment : Fragment(R.layout.fragment_resume) {
             }
 
             b.textResume.text =
-                "NAME: ${userData.name}\nSURNAME: ${userData.surname}\nBIRTHDAY: $birthday\n\nCOUNTRY: ${addrData.country}\nCITY: ${addrData.city}\nADDRESS: ${addrData.address}\n\nINTERESTS: $interests"
+                "NAME: ${userData.name}\nSURNAME: ${userData.surname}\nBIRTHDAY: $birthday\n\nCOUNTRY: ${addrData.country}\nADDRESS: ${addrData.address}\n\nINTERESTS: $interests"
         }
 
 
