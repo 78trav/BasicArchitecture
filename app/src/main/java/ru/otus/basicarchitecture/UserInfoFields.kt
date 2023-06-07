@@ -129,6 +129,6 @@ data class SuggestionData(
 @Component(modules = [RegistrationModule::class])
 interface DaDataComponent {
 
-    fun inject(adapter: AddressAutoCompleteAdapter)
+    fun inject(vm: AddressViewModel)
 
 }

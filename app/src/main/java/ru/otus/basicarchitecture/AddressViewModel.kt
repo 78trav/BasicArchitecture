@@ -12,6 +12,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -24,6 +26,14 @@ import javax.inject.Inject
 class AddressViewModel constructor(private val cache: WizardCache): ViewModel() {
     // TODO: Implement the ViewModel
 
+    @Inject
+    lateinit var retrofit: Retrofit
+
+    private var addressList = MutableLiveData<List<String>>()
+
+    init {
+        DaggerDaDataComponent.create().inject(this)
+    }
 
     private var data = MutableLiveData<AddressData>().apply {
         value = cache.getAddressData()
@@ -33,6 +43,51 @@ class AddressViewModel constructor(private val cache: WizardCache): ViewModel() 
     fun setData(data: AddressData) {
         cache.setAddressData(data)
         this.data = MutableLiveData<AddressData>().apply { value = cache.getAddressData() }
+    }
+
+    fun getHints(): LiveData<List<String>> = addressList
+
+    fun searchAddress(part: String) {
+
+        if ((part.length > 7) && (part.length % 3 == 0)) {
+
+            Log.d("DaData", "Starting to get hints")
+
+            viewModelScope.launch {
+
+                val srv = retrofit.create(DaDataService::class.java)
+                val rsp = srv.getAddressHint(QueryString(part))
+
+                rsp.enqueue(
+                    object : Callback<Suggestion> {
+                        override fun onResponse(
+                            call: Call<Suggestion>,
+                            response: Response<Suggestion>
+                        ) {
+                            if (response.isSuccessful) {
+
+                                val l = MutableList<String>(0) { "" }
+                                if (response.body() != null) {
+                                    (response.body() as Suggestion).apply {
+                                        suggestions.forEach {
+                                            l.add(it.value)
+                                        }
+                                    }
+                                }
+
+                                Log.d("DaData", "Query result (${l.size})" + l.toString())
+
+                                addressList.value = l.toList()
+                            }
+                        }
+
+                        override fun onFailure(call: Call<Suggestion>, t: Throwable) {
+                            Log.d("DaData", "Error: $t")
+                        }
+                    }
+                )
+            }
+        }
     }
 
 
@@ -48,7 +103,7 @@ class AddressViewModelFactory @Inject constructor(private val cache: WizardCache
     }
 }
 
-
+/*
 class AddressAutoCompleteAdapter constructor(private val context: Context): BaseAdapter(), Filterable {
 
     @Inject
@@ -137,3 +192,6 @@ class AddressAutoCompleteAdapter constructor(private val context: Context): Base
     }
 
 }
+
+
+*/

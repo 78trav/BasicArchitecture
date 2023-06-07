@@ -50,9 +50,33 @@ class AddressFragment : Fragment(R.layout.fragment_address) {
 //        b.address.addTextChangedListener { updateAddressData() }
 
 
-        b.fullAddress.setAdapter(AddressAutoCompleteAdapter(requireContext()))
+        //b.fullAddress.setAdapter(AddressAutoCompleteAdapter(requireContext()))
 
-        b.fullAddress.addTextChangedListener { updateAddressData() }
+        b.fullAddress.apply {
+            tag = true
+            addTextChangedListener {
+                if (tag == true)
+                    viewModel.searchAddress(it.toString())
+                else
+                    tag = true
+                updateAddressData()
+            }
+        }
+
+        viewModel.getHints().observe(viewLifecycleOwner) {
+            b.fullAddress.apply {
+                tag = false
+                setAdapter(
+                    ArrayAdapter(
+                        requireContext(),
+                        R.layout.address_item,
+                        R.id.address_item,
+                        it
+                    )
+                )
+                showDropDown()
+            }
+        }
 
         b.btn2Interests.setOnClickListener {
             findNavController().navigate(R.id.frg_interests)
