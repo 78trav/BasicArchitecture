@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -21,6 +22,7 @@ import retrofit2.Retrofit
 import retrofit2.create
 import ru.otus.basicarchitecture.databinding.AddressItemBinding
 import javax.inject.Inject
+import kotlin.coroutines.resumeWithException
 
 
 class AddressViewModel constructor(private val cache: WizardCache): ViewModel() {
@@ -56,40 +58,46 @@ class AddressViewModel constructor(private val cache: WizardCache): ViewModel() 
             viewModelScope.launch {
 
                 val srv = retrofit.create(DaDataService::class.java)
-                val rsp = srv.getAddressHint(QueryString(part))
 
-                rsp.enqueue(
-                    object : Callback<Suggestion> {
-                        override fun onResponse(
-                            call: Call<Suggestion>,
-                            response: Response<Suggestion>
-                        ) {
-                            if (response.isSuccessful) {
+                val l = MutableList<String>(0) { "" }
+                srv.getAddressHint(QueryString(part)).suggestions.forEach {
+                    l.add(it.value)
+                }
+                Log.d("DaData", "Query result (${l.size})" + l.toString())
 
-                                val l = MutableList<String>(0) { "" }
-                                if (response.body() != null) {
-                                    (response.body() as Suggestion).apply {
-                                        suggestions.forEach {
-                                            l.add(it.value)
-                                        }
-                                    }
+                addressList.value = l.toList()
+
+/*
+                try {
+                    val response = retrofitCall { srv.getAddressHint(QueryString(part)) }
+
+                    if (response.isSuccessful) {
+
+                        val l = MutableList<String>(0) { "" }
+                        if (response.body() != null) {
+                            (response.body() as Suggestion).apply {
+                                suggestions.forEach {
+                                    l.add(it.value)
                                 }
-
-                                Log.d("DaData", "Query result (${l.size})" + l.toString())
-
-                                addressList.value = l.toList()
                             }
                         }
 
-                        override fun onFailure(call: Call<Suggestion>, t: Throwable) {
-                            Log.d("DaData", "Error: $t")
-                        }
+                        Log.d("DaData", "Query result (${l.size})" + l.toString())
+
+                        addressList.value = l.toList()
                     }
-                )
+
+                }
+                catch (e: Exception)
+                {
+                    Log.d("DaData", "Error: $e")
+                }
+
+ */
             }
+
         }
     }
-
 
 }
 
